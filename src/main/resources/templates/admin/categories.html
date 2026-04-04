@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý danh mục</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-layout">
+
+    <aside class="sidebar">
+        <h2>ADMIN PANEL</h2>
+        <ul>
+            <li><a th:href="@{/admin/dashboard}">Dashboard</a></li>
+            <li><a th:href="@{/admin/categories}">Quản lý danh mục</a></li>
+            <li><a th:href="@{/admin/products}">Quản lý sản phẩm</a></li>
+            <li><a th:href="@{/admin/users}">Quản lý người dùng</a></li>
+            <li><a th:href="@{/admin/orders}">Quản lý đơn hàng</a></li>
+            <li><a th:href="@{/admin/coupons}">Quản lý mã giảm giá</a></li>
+            <li><a th:href="@{/admin/statistics}">Thống kê</a></li>
+            <li>
+                <form th:action="@{/logout}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-danger" style="width: 100%;">
+                        Đăng xuất
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Quản lý danh mục</h1>
+                <p class="sub-title">Thêm, sửa, xóa danh mục quần áo trẻ em</p>
+            </div>
+            <a class="btn btn-primary" th:href="@{/admin/categories/create}">+ Thêm danh mục</a>
+        </div>
+
+        <div th:if="${param.success}" class="alert success">
+            Thao tác thành công!
+        </div>
+
+        <div th:if="${error}" class="alert error" th:text="${error}"></div>
+
+        <div class="card">
+            <form method="get" th:action="@{/admin/categories}" class="filter-form">
+                <input type="text"
+                       name="keyword"
+                       class="form-control"
+                       placeholder="Nhập tên danh mục để tìm kiếm..."
+                       th:value="${keyword}">
+                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                <a th:href="@{/admin/categories}" class="btn btn-secondary">Làm mới</a>
+            </form>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên danh mục</th>
+                    <th>Mô tả</th>
+                    <th>Danh mục cha</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(categories)}">
+                    <td colspan="6" class="text-center">Chưa có danh mục nào.</td>
+                </tr>
+
+                <tr th:each="category : ${categories}">
+                    <td th:text="${category.id}">1</td>
+                    <td th:text="${category.name}">Áo bé trai</td>
+                    <td th:text="${category.description != null && !#strings.isEmpty(category.description) ? category.description : 'Không có mô tả'}">
+                        Không có mô tả
+                    </td>
+                    <td th:text="${category.parent != null ? category.parent.name : 'Không có'}">Không có</td>
+                    <td>
+                        <span th:if="${category.status.name() == 'ACTIVE'}" class="badge active">Hoạt động</span>
+                        <span th:if="${category.status.name() == 'INACTIVE'}" class="badge inactive">Ngưng hoạt động</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="action-group">
+                            <a class="btn btn-warning"
+                               th:href="@{'/admin/categories/edit/' + ${category.id}}">
+                                Sửa
+                            </a>
+
+                            <form th:action="@{'/admin/categories/delete/' + ${category.id}}"
+                                  method="post"
+                                  onsubmit="return confirm('Bạn có chắc muốn xóa danh mục này?');">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-danger">Xóa</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

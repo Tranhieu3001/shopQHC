@@ -1,0 +1,19 @@
+/*package com.example.shopQHC.config;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+public class GeneratePassword {
+    public static void main(String[] args) {
+        System.out.println(new BCryptPasswordEncoder().encode("123456"));
+    }
+}*/
+
+package com.example.shopQHC.config;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+public class GeneratePassword {
+    public static void main(String[] args) {
+        System.out.println(new BCryptPasswordEncoder().encode("123456"));
+    }
+}

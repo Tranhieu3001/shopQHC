@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý sản phẩm</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div class="main-content">
+    <h1>Quản lý sản phẩm</h1>
+
+    <a class="btn btn-primary" th:href="@{/admin/products/create}">+ Thêm sản phẩm</a>
+    <a class="btn btn-secondary" href="/admin/dashboard">← Quay lại</a>
+    <div th:if="${param.success}" class="alert success">
+        Thao tác thành công
+    </div>
+
+    <table class="admin-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Ảnh</th>
+            <th>Tên</th>
+            <th>Danh mục</th>
+            <th>Giá</th>
+            <th>Tồn kho</th>
+            <th>Giới tính</th>
+            <th>Mới</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="p : ${products}">
+            <td th:text="${p.id}"></td>
+
+            <td>
+                <img th:src="${p.imageUrl}" width="60">
+            </td>
+
+            <td th:text="${p.name}"></td>
+
+            <td th:text="${p.category.name}"></td>
+
+            <td th:text="${p.price} + ' VND'"></td>
+
+            <td th:text="${p.stockQuantity}"></td>
+
+            <td th:text="${p.gender}"></td>
+
+            <td>
+                <span th:if="${p.isNew}">🔥</span>
+            </td>
+
+            <td th:text="${p.status}"></td>
+
+            <td>
+                <a th:href="@{/admin/products/edit/{id}(id=${p.id})}">Sửa</a>
+
+                <form th:action="@{/admin/products/delete/{id}(id=${p.id})}" method="post"
+                      style="display:inline;">
+                    <button type="submit">Xóa</button>
+                </form>
+            </td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(products)}">
+            <td colspan="10">Chưa có sản phẩm</td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

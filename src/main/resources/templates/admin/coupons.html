@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lý mã giảm giá</title>
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="main-content">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản lý mã giảm giá</h1>
+      <p class="sub-title">Thêm, sửa và theo dõi trạng thái coupon</p>
+    </div>
+    <a th:href="@{/admin/dashboard}" class="btn btn-secondary">← Trang quản trị</a>
+  </div>
+
+  <div th:if="${successMessage}" class="alert success" th:text="${successMessage}"></div>
+  <div th:if="${errorMessage}" class="alert error" th:text="${errorMessage}"></div>
+
+  <div class="card">
+    <form method="get" th:action="@{/admin/coupons}" class="filter-form">
+      <input type="text"
+             name="keyword"
+             class="form-control"
+             placeholder="Nhập mã giảm giá"
+             th:value="${keyword}">
+
+      <select name="status" class="form-control">
+        <option value="">-- Tất cả trạng thái --</option>
+        <option th:each="st : ${statuses}"
+                th:value="${st}"
+                th:text="${st}"
+                th:selected="${st == selectedStatus}">
+        </option>
+      </select>
+
+      <button type="submit" class="btn btn-primary">Lọc</button>
+      <a th:href="@{/admin/coupons/create}" class="btn btn-warning">+ Thêm mã</a>
+    </form>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="admin-table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Mã</th>
+        <th>Loại</th>
+        <th>Giá trị</th>
+        <th>Đơn tối thiểu</th>
+        <th>Số lượng</th>
+        <th>Hạn dùng</th>
+        <th>Trạng thái</th>
+        <th>Thao tác</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="c : ${coupons}">
+        <td th:text="${c.id}"></td>
+        <td th:text="${c.code}"></td>
+        <td th:text="${c.discountType}"></td>
+        <td>
+                    <span th:if="${c.discountType.name() == 'PERCENT'}"
+                          th:text="${#numbers.formatDecimal(c.discountValue, 0, 'COMMA', 0, 'POINT')} + '%'"></span>
+          <span th:if="${c.discountType.name() == 'FIXED'}"
+                th:text="${#numbers.formatDecimal(c.discountValue, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+        </td>
+        <td th:text="${#numbers.formatDecimal(c.minOrderValue, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+        <td th:text="${c.quantity}"></td>
+        <td th:text="${#temporals.format(c.endDate, 'dd/MM/yyyy HH:mm')}"></td>
+        <td>
+                    <span th:class="'badge ' + ${c.status.name().toLowerCase()}"
+                          th:text="${c.status}"></span>
+        </td>
+        <td>
+          <div class="action-group">
+            <a th:href="@{/admin/coupons/edit/{id}(id=${c.id})}" class="btn btn-primary">Sửa</a>
+          </div>
+        </td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(coupons)}">
+        <td colspan="9" class="text-center">Không có mã giảm giá nào</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>
