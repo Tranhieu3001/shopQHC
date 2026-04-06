@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết đơn hàng</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <h2>ADMIN PANEL</h2>
+        <ul>
+            <li><a th:href="@{/admin/dashboard}">Dashboard</a></li>
+            <li><a th:href="@{/admin/categories}">Quản lý danh mục</a></li>
+            <li><a th:href="@{/admin/products}">Quản lý sản phẩm</a></li>
+            <li><a th:href="@{/admin/users}">Quản lý người dùng</a></li>
+            <li class="active"><a th:href="@{/admin/orders}">Quản lý đơn hàng</a></li>
+            <li><a th:href="@{/admin/coupons}">Quản lý mã giảm giá</a></li>
+            <li><a th:href="@{/admin/statistics}">Thống kê</a></li>
+            <li>
+                <form th:action="@{/logout}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-danger" style="width:100%;">
+                        Đăng xuất
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Chi tiết đơn hàng</h1>
+                <p class="sub-title">Xem thông tin đơn hàng và cập nhật trạng thái</p>
+            </div>
+            <a th:href="@{/admin/orders}" class="btn btn-secondary">← Quay lại</a>
+        </div>
+
+        <!-- THÔNG TIN ĐƠN HÀNG -->
+        <div class="card">
+            <div class="form-grid">
+                <div>
+                    <p><strong>Mã đơn hàng:</strong> <span th:text="${order.id}">1</span></p>
+                    <p><strong>Tên người nhận:</strong> <span th:text="${order.receiverName}">Tên</span></p>
+                    <p><strong>Số điện thoại:</strong> <span th:text="${order.receiverPhone}">SĐT</span></p>
+                    <p><strong>Địa chỉ giao hàng:</strong> <span th:text="${order.shippingAddress}">Địa chỉ</span></p>
+                </div>
+
+                <div>
+                    <p>
+                        <strong>Phương thức thanh toán:</strong>
+                        <span th:text="${order.paymentMethod.displayName}">
+                            Thanh toán khi nhận hàng
+                        </span>
+                    </p>
+
+                    <p>
+                        <strong>Trạng thái:</strong>
+                        <span th:class="'badge ' + ${order.orderStatus.name().toLowerCase()}"
+                              th:text="${order.orderStatus.displayName}">
+                            Chờ xác nhận
+                        </span>
+                    </p>
+
+                    <p>
+                        <strong>Ghi chú:</strong>
+                        <span th:text="${order.note != null and !#strings.isEmpty(order.note) ? order.note : 'Không có'}">
+                            Không có
+                        </span>
+                    </p>
+
+                    <p>
+                        <strong>Tổng tiền:</strong>
+                        <span th:text="${#numbers.formatDecimal(order.finalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                            0 đ
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CẬP NHẬT TRẠNG THÁI -->
+        <div class="form-wrapper">
+            <h3 style="margin-bottom: 16px;">Cập nhật trạng thái</h3>
+            <form method="post"
+                  th:action="@{/admin/orders/{id}/status(id=${order.id})}"
+                  class="admin-form">
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                <div class="form-group">
+                    <label for="orderStatus">Trạng thái đơn hàng</label>
+                    <select id="orderStatus" name="orderStatus" class="form-control">
+                        <option th:each="st : ${statuses}"
+                                th:value="${st}"
+                                th:text="${st.displayName}"
+                                th:selected="${st == order.orderStatus}">
+                            Chờ xác nhận
+                        </option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Cập nhật trạng thái</button>
+            </form>
+        </div>
+
+        <!-- DANH SÁCH SẢN PHẨM -->
+        <div class="table-wrapper">
+            <h3 style="margin-bottom: 16px;">Danh sách sản phẩm</h3>
+
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Tên sản phẩm</th>
+                    <th>Kích cỡ</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:if="${#lists.isEmpty(order.orderItems)}">
+                    <td colspan="4" class="text-center">
+                        Không có sản phẩm trong đơn hàng
+                    </td>
+                </tr>
+
+                <tr th:each="item : ${order.orderItems}">
+                    <td th:text="${item.productName}"></td>
+                    <td th:text="${item.size}"></td>
+                    <td th:text="${item.quantity}"></td>
+                    <td th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

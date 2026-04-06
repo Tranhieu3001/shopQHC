@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý tài khoản khách hàng</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>ADMIN PANEL</h2>
+        <ul>
+            <li><a th:href="@{/admin/dashboard}">Dashboard</a></li>
+            <li><a th:href="@{/admin/categories}">Quản lý danh mục</a></li>
+            <li><a th:href="@{/admin/products}">Quản lý sản phẩm</a></li>
+            <li><a th:href="@{/admin/users}">Quản lý người dùng</a></li>
+            <li><a th:href="@{/admin/orders}">Quản lý đơn hàng</a></li>
+            <li><a th:href="@{/admin/coupons}">Quản lý mã giảm giá</a></li>
+            <li><a th:href="@{/admin/statistics}">Thống kê</a></li>
+            <li>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-danger" style="width: 100%;">
+                        Đăng xuất
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1>Quản lý tài khoản khách hàng</h1>
+                <p>Danh sách tài khoản trong hệ thống</p>
+            </div>
+            <a class="btn btn-primary" th:href="@{/admin/users/create}">+ Thêm tài khoản</a>
+        </div>
+
+        <div th:if="${param.success}" class="alert success">
+            Thao tác thành công.
+        </div>
+
+        <div class="table-wrapper">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Họ tên</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>SĐT</th>
+                    <th>Địa chỉ</th>
+                    <th>Quyền</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="u : ${users}">
+                    <td th:text="${u.id}"></td>
+                    <td th:text="${u.fullName}"></td>
+                    <td th:text="${u.username}"></td>
+                    <td th:text="${u.email}"></td>
+                    <td th:text="${u.phone}"></td>
+                    <td th:text="${u.address}"></td>
+                    <td th:text="${u.role}"></td>
+                    <td>
+                        <span th:if="${u.status.name() == 'ACTIVE'}" class="badge active">Hoạt động</span>
+                        <span th:if="${u.status.name() == 'INACTIVE'}" class="badge inactive">Ngừng hoạt động</span>
+                    </td>
+                    <td>
+                        <div class="action-group">
+                            <a class="btn btn-warning" th:href="@{/admin/users/edit/{id}(id=${u.id})}">Sửa</a>
+                            <form th:action="@{/admin/users/delete/{id}(id=${u.id})}" method="post"
+                                  onsubmit="return confirm('Bạn có chắc muốn xóa tài khoản này?');">
+                                <button type="submit" class="btn btn-danger">Xóa</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(users)}">
+                    <td colspan="9" class="text-center">Chưa có tài khoản nào</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

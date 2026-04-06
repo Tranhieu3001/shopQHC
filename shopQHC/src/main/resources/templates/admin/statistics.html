@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Thống kê</title>
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>ADMIN PANEL</h2>
+    <ul>
+      <li><a th:href="@{/admin}">Trang chủ</a></li>
+      <li><a th:href="@{/admin/categories}">Danh mục</a></li>
+      <li><a th:href="@{/admin/products}">Sản phẩm</a></li>
+      <li><a th:href="@{/admin/orders}">Đơn hàng</a></li>
+      <li><a th:href="@{/admin/users}">Khách hàng</a></li>
+      <li><a th:href="@{/admin/coupons}">Mã giảm giá</a></li>
+      <li><a th:href="@{/admin/statistics}">Thống kê</a></li>
+      <li>
+        <form th:action="@{/logout}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <button type="submit" class="btn btn-danger" style="width: 100%;">Đăng xuất</button>
+        </form>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- HEADER -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">📊 Thống kê</h1>
+        <p class="sub-title">Tổng quan hệ thống</p>
+      </div>
+    </div>
+
+    <!-- CARD NHỎ GỌN -->
+    <div style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">
+
+      <div class="card" style="padding:12px 16px; min-width:180px;">
+        <h4 style="margin-bottom:6px;">Khách hàng</h4>
+        <p style="font-size:20px; font-weight:bold;"
+           th:text="${totalCustomers}">0</p>
+      </div>
+
+      <div class="card" style="padding:12px 16px; min-width:180px;">
+        <h4 style="margin-bottom:6px;">Doanh thu</h4>
+        <p style="font-size:20px; font-weight:bold;"
+           th:text="${#numbers.formatDecimal(totalRevenue,0,'COMMA',0,'POINT')} + ' đ'">
+          0 đ
+        </p>
+      </div>
+
+      <div class="card" style="padding:12px 16px; min-width:140px;">
+        <h4 style="margin-bottom:6px;">Năm</h4>
+        <p style="font-size:20px; font-weight:bold;"
+           th:text="${currentYear}">2026</p>
+      </div>
+
+    </div>
+
+    <!-- CHART NHỎ -->
+    <div class="card" style="padding:16px; max-width:800px; margin-bottom:20px;">
+      <h3 style="margin-bottom:10px;">Doanh thu theo tháng</h3>
+      <canvas id="revenueChart" style="max-height:250px;"></canvas>
+    </div>
+
+    <!-- GRID NHỎ -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+
+      <!-- TOP KHÁCH -->
+      <div class="table-wrapper">
+        <h3>Top khách hàng</h3>
+        <table class="admin-table">
+          <thead>
+          <tr>
+            <th>STT</th>
+            <th>Tên</th>
+            <th>Đơn</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="c, stat : ${topCustomers}">
+            <td th:text="${stat.count}"></td>
+            <td th:text="${c[0]}"></td>
+            <td th:text="${c[1]}"></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TOP CHI TIÊU -->
+      <div class="table-wrapper">
+        <h3>Top chi tiêu</h3>
+        <table class="admin-table">
+          <thead>
+          <tr>
+            <th>STT</th>
+            <th>Tên</th>
+            <th>Tiền</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="c, stat : ${topSpending}">
+            <td th:text="${stat.count}"></td>
+            <td th:text="${c[0]}"></td>
+            <td th:text="${#numbers.formatDecimal(c[1],0,'COMMA',0,'POINT')} + ' đ'"></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TOP SẢN PHẨM -->
+      <div class="table-wrapper" style="grid-column: span 2; max-width:600px;">
+        <h3>Top sản phẩm bán chạy</h3>
+        <table class="admin-table">
+          <thead>
+          <tr>
+            <th>STT</th>
+            <th>Tên sản phẩm</th>
+            <th>Đã bán</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="p, stat : ${topProducts}">
+            <td th:text="${stat.count}"></td>
+            <td th:text="${p[0]}"></td>
+            <td th:text="${p[1]}"></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- CHART -->
+<script th:inline="javascript">
+  const revenueData = /*[[${monthlyRevenue}]]*/ [];
+
+  const labels = [];
+  const data = [];
+
+  for (let i = 1; i <= 12; i++) {
+    labels.push("T" + i);
+    const item = revenueData.find(x => x[0] === i);
+    data.push(item ? item[1] : 0);
+  }
+
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Doanh thu',
+        data: data
+      }]
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Đơn hàng của tôi - shopQHC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .orders-box {
+            width: 100%;
+            max-width: none;
+            margin: 30px auto;
+            background: #fff;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        .orders-box h2 {
+            margin-bottom: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .table th {
+            background: #fff0f3;
+        }
+
+        .status {
+            font-weight: 700;
+        }
+
+        .status-pending { color: #f59e0b; }
+        .status-confirmed { color: #2563eb; }
+        .status-shipping { color: #7c3aed; }
+        .status-completed { color: #16a34a; }
+        .status-cancelled { color: #dc2626; }
+
+        .btn-view {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #ff4f73;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #dc2626;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-disabled {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #d1d5db;
+            color: #6b7280;
+            border-radius: 8px;
+            border: none;
+            cursor: not-allowed;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .empty-box {
+            text-align: center;
+            padding: 30px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="container nav">
+        <div class="logo">shopQHC</div>
+
+        <form th:action="@{/products}" method="get" class="header-search">
+            <input type="text" name="keyword" placeholder="Tìm sản phẩm...">
+            <button type="submit">Tìm kiếm</button>
+        </form>
+
+        <nav class="menu">
+            <a th:href="@{/}">Trang chủ</a>
+            <a th:href="@{/products}">Sản phẩm</a>
+            <a th:href="@{/cart}">Giỏ hàng</a>
+            <a th:href="@{/orders}" sec:authorize="isAuthenticated()">Đơn hàng của tôi</a>
+
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="login-link">Đăng nhập</a>
+                <a th:href="@{/register}" class="register-link">Đăng ký</a>
+            </span>
+
+            <span sec:authorize="isAuthenticated()" class="user-box">
+                <span>Xin chào, <b sec:authentication="name"></b></span>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="logout-btn">Đăng xuất</button>
+                </form>
+            </span>
+        </nav>
+    </div>
+</header>
+
+<section class="section">
+    <div class="container">
+        <div th:if="${#lists.isEmpty(orders)}" class="empty-box">
+            <h2>Bạn chưa có đơn hàng nào</h2>
+            <br>
+            <a th:href="@{/products}" class="btn-view">Mua sắm ngay</a>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(orders)}" class="orders-box">
+            <h2>Đơn hàng của tôi</h2>
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Ngày đặt</th>
+                    <th>Người nhận</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.id}"></td>
+                    <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${order.receiverName}"></td>
+                    <td th:text="${#numbers.formatDecimal(order.finalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                    <td>
+                        <span class="status"
+                              th:classappend="' status-' + ${order.orderStatus.name().toLowerCase()}"
+                              th:text="${order.orderStatus.displayName}">
+                            Chờ xác nhận
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-group">
+                            <a th:href="@{/orders/{id}(id=${order.id})}" class="btn-view">Xem chi tiết</a>
+
+                            <form th:if="${order.orderStatus.name() == 'PENDING' || order.orderStatus.name() == 'CONFIRMED'}"
+                                  th:action="@{/orders/cancel/{id}(id=${order.id})}"
+                                  method="post"
+                                  style="display:inline;">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit"
+                                        class="btn-cancel"
+                                        onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')">
+                                    Hủy đơn
+                                </button>
+                            </form>
+
+                            <span th:if="${order.orderStatus.name() != 'PENDING' && order.orderStatus.name() != 'CONFIRMED'}"
+                                  class="btn-disabled">
+                                Không thể hủy
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

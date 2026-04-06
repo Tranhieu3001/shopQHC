@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Sản phẩm - shopQHC</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <style>
+    .top-actions{
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        gap:16px;
+        flex-wrap:wrap;
+        margin-bottom:24px;
+        position:relative;
+        z-index:20;
+    }
+
+    .search-form{
+        display:flex;
+        gap:10px;
+        flex:1;
+        min-width:280px;
+    }
+
+    .search-form input{
+        flex:1;
+        padding:12px 14px;
+        border:1px solid #ddd;
+        border-radius:10px;
+    }
+
+    .active-filter{
+        margin-bottom:18px;
+        color:#666;
+        font-size:14px;
+    }
+
+    .card-category{
+        color:#ff4f73;
+        font-size:14px;
+        margin-bottom:8px;
+    }
+
+    .category-menu{
+        position:relative;
+        display:inline-block;
+        padding-bottom:8px;
+    }
+
+    .category-btn{
+        background:#f0627f;
+        color:#fff;
+        border:none;
+        padding:12px 18px;
+        border-radius:14px;
+        cursor:pointer;
+        font-weight:700;
+        font-size:15px;
+        min-width:190px;
+        text-align:center;
+        box-shadow:0 6px 14px rgba(240, 98, 127, 0.18);
+    }
+
+    .category-dropdown{
+        display:none;
+        position:absolute;
+        top:calc(100% + 10px);
+        left:0;
+        width:260px;
+        background:#fff;
+        border-radius:16px 0 0 16px;
+        box-shadow:0 14px 30px rgba(0,0,0,0.14);
+        z-index:999;
+        padding:8px 0;
+    }
+
+    .category-dropdown{
+        display:none;
+        position:absolute;
+        top:100%;
+        left:0;
+        width:260px;
+        background:#fff;
+        border-radius:16px 0 0 16px;
+        box-shadow:0 14px 30px rgba(0,0,0,0.14);
+        z-index:999;
+        padding:8px 0;
+    }
+
+    .category-dropdown.show{
+        display:block;
+    }
+
+    .category-all{
+        display:block;
+        padding:12px 18px;
+        font-size:14px;
+        font-weight:700;
+        color:#444;
+        text-decoration:none;
+        border-bottom:1px solid #f2f2f2;
+        background:#fff;
+    }
+
+    .category-all:hover{
+        background:#fff4f7;
+        color:#f0627f;
+    }
+
+    .category-item{
+        position:relative;
+    }
+
+    .category-parent{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:14px 18px;
+        text-decoration:none;
+        color:#222;
+        font-size:15px;
+        font-weight:700;
+        border-bottom:1px solid #f5f5f5;
+        background:#fff;
+    }
+
+    .category-parent::after{
+        content:"›";
+        font-size:22px;
+        color:#888;
+        line-height:1;
+    }
+
+    .category-parent:hover{
+        background:#fff4f7;
+        color:#f0627f;
+    }
+
+    .category-parent:hover::after{
+        color:#f0627f;
+    }
+
+    .category-submenu{
+        display:none;
+        position:absolute;
+        top:0;
+        left:100%;
+        width:260px;
+        min-height:100%;
+        background:#fff;
+        border-radius:0 16px 16px 0;
+        box-shadow:8px 14px 30px rgba(0,0,0,0.12);
+        padding:12px 0;
+    }
+
+    .category-item:hover .category-submenu{
+        display:block;
+    }
+
+    .category-submenu a{
+        display:block;
+        padding:10px 18px;
+        text-decoration:none;
+        color:#555;
+        font-size:14px;
+        transition:0.2s ease;
+    }
+
+    .category-submenu a:hover{
+        background:#fff4f7;
+        color:#f0627f;
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="container nav">
+    <div class="logo">shopQHC</div>
+
+    <form th:action="@{/products}" method="get" class="header-search">
+      <input type="text" name="keyword" placeholder="Tìm sản phẩm...">
+      <button type="submit">Tìm</button>
+    </form>
+
+    <nav class="menu">
+      <a th:href="@{/}">Trang chủ</a>
+      <a th:href="@{/products}">Sản phẩm</a>
+      <a th:href="@{/cart}">Giỏ hàng</a>
+      <a th:href="@{/orders}" sec:authorize="isAuthenticated()">Đơn hàng của tôi</a>
+      <span sec:authorize="isAnonymous()">
+        <a th:href="@{/login}" class="login-link">Đăng nhập</a>
+        <a th:href="@{/register}" class="register-link">Đăng ký</a>
+      </span>
+
+      <span sec:authorize="isAuthenticated()" class="user-box">
+        <span>Xin chào, <b sec:authentication="name"></b></span>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <button type="submit" class="logout-btn">Đăng xuất</button>
+        </form>
+      </span>
+    </nav>
+  </div>
+</header>
+
+<section class="section">
+  <div class="container">
+    <div class="page-box">
+      <h2 class="section-title">Danh sách sản phẩm</h2>
+
+      <div class="top-actions">
+        <div class="category-menu">
+          <button class="category-btn" type="button" onclick="toggleCategoryMenu(event)">
+            Danh mục sản phẩm
+          </button>
+
+          <div class="category-dropdown" id="categoryDropdown">
+            <a class="category-all" th:href="@{/products}">Tất cả sản phẩm</a>
+
+            <div class="category-item" th:each="parent : ${parentCategories}">
+              <a class="category-parent"
+                 th:href="@{/products(categoryId=${parent.id})}"
+                 th:text="${parent.name}">
+              </a>
+
+              <div class="category-submenu"
+                   th:if="${childCategoryMap[parent.id] != null and !#lists.isEmpty(childCategoryMap[parent.id])}">
+                <a th:each="child : ${childCategoryMap[parent.id]}"
+                   th:href="@{/products(categoryId=${child.id})}"
+                   th:text="${child.name}">
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form th:action="@{/products}" method="get" class="search-form">
+          <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm sản phẩm theo tên...">
+          <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+        </form>
+      </div>
+
+      <div class="active-filter" th:if="${keyword != null and !keyword.isEmpty()}">
+        Kết quả tìm kiếm cho: <strong th:text="${keyword}"></strong>
+      </div>
+
+      <div class="grid">
+        <div class="card" th:each="p : ${products}">
+          <img th:src="@{${p.imageUrl}}" alt="product">
+
+          <div class="card-body">
+            <div class="card-title" th:text="${p.name}">Tên sản phẩm</div>
+            <div class="card-category" th:text="${p.category.name}">Danh mục</div>
+            <div class="card-price" th:text="|${#numbers.formatInteger(p.price, 0, 'COMMA')} VNĐ|">0 VNĐ</div>
+
+            <div class="card-actions">
+              <a class="btn btn-outline" th:href="@{'/products/' + ${p.id}}">
+                Xem chi tiết
+              </a>
+
+              <form th:action="@{/cart/add-product}" method="post" style="display:inline-flex;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="productId" th:value="${p.id}">
+                <input type="hidden" name="quantity" value="1">
+
+                <button type="submit" class="btn btn-primary cart-btn">
+                  <span class="cart-icon">🛒</span>
+                  Thêm vào giỏ hàng
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div th:if="${#lists.isEmpty(products)}" style="margin-top:20px; text-align:center;">
+        <p>Không tìm thấy sản phẩm phù hợp.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-wrap">
+    <div class="footer-col">
+      <h3 class="footer-logo">shopQHC</h3>
+      <p>Website thời trang trẻ em dễ thương, thoải mái và hiện đại cho bé.</p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Liên kết nhanh</h4>
+      <ul class="footer-links">
+        <li><a th:href="@{/}">Trang chủ</a></li>
+        <li><a th:href="@{/products}">Sản phẩm</a></li>
+        <li><a th:href="@{/cart}">Giỏ hàng</a></li>
+        <li><a th:href="@{/login}">Đăng nhập</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Liên hệ</h4>
+      <p>Email: shopqhc@gmail.com</p>
+      <p>Hotline: 0123 456 789</p>
+      <p>Địa chỉ: TP. Hồ Chí Minh</p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 shopQHC - Website thời trang trẻ em
+  </div>
+</footer>
+
+<script>
+  function toggleCategoryMenu(event) {
+    event.stopPropagation();
+    const menu = document.getElementById('categoryDropdown');
+    menu.classList.toggle('show');
+  }
+
+  document.addEventListener('click', function (event) {
+    const menu = document.getElementById('categoryDropdown');
+    const categoryBox = document.querySelector('.category-menu');
+
+    if (menu && categoryBox && !categoryBox.contains(event.target)) {
+      menu.classList.remove('show');
+    }
+  });
+</script>
+</body>
+</html>

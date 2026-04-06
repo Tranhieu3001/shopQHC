@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="sidebar">
+    <h2>ADMIN </h2>
+    <ul>
+      <li><a th:href="@{/admin/dashboard}">Dashboard</a></li>
+      <li><a th:href="@{/admin/categories}">Quản lý danh mục</a></li>
+      <li><a th:href="@{/admin/products}">Quản lý sản phẩm</a></li>
+      <li><a th:href="@{/admin/users}">Quản lý người dùng</a></li>
+      <li><a th:href="@{/admin/orders}">Quản lý đơn hàng</a></li>
+      <li><a th:href="@{/admin/coupons}">Quản lý mã giảm giá</a></li>
+      <li><a th:href="@{/admin/statistics}">Thống kê</a></li>
+      <li>
+        <form th:action="@{/logout}" method="post">
+          <button type="submit" class="btn btn-danger" style="width: 100%;">
+            Đăng xuất
+          </button>
+        </form>
+      </li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <h1>Trang quản lý hệ thống</h1>
+      <p>Website mua bán quần áo trẻ em</p>
+    </header>
+
+    <section class="cards">
+      <div class="card">
+        <h3>Danh mục</h3>
+        <p>Quản lý loại quần áo trẻ em</p>
+        <a th:href="@{/admin/categories}">Xem chi tiết</a>
+      </div>
+
+      <div class="card">
+        <h3>Sản phẩm</h3>
+        <p>Thêm / sửa / xóa sản phẩm</p>
+        <a th:href="@{/admin/products}">Xem chi tiết</a>
+      </div>
+
+      <div class="card">
+        <h3>Người dùng</h3>
+        <p>Quản lý tài khoản khách hàng</p>
+        <a th:href="@{/admin/users}">Xem chi tiết</a>
+      </div>
+
+      <div class="card">
+        <h3>Đơn hàng</h3>
+        <p>Kiểm tra và xử lý đơn đặt hàng</p>
+        <a th:href="@{/admin/orders}">Xem chi tiết</a>
+      </div>
+
+      <div class="card">
+        <h3>Mã giảm giá</h3>
+        <p>Quản lý mã giảm giá và chương trình giảm giá</p>
+        <a th:href="@{/admin/coupons}">Xem chi tiết</a>
+      </div>
+
+      <div class="card">
+        <h3>Thống kê</h3>
+        <p>Xem doanh thu, sản phẩm bán chạy</p>
+        <a th:href="@{/admin/statistics}">Xem chi tiết</a>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>
