@@ -17,7 +17,7 @@ public interface ProductService {
     List<Product> getNewestProducts();
     List<Product> getBestSellerProducts();
 
-    // ================== THỐNG KÊ ==================
+    // THỐNG KÊ 
     long countActiveProducts();
     List<Product> getTop5SellingProducts();
     List<Product> getTop10SellingProducts();

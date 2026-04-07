@@ -19,9 +19,6 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-
-    // ================== CRUD ==================
-
     @Override
     public List<Product> getAllProducts() {
         return productRepository.findAll();
@@ -88,9 +85,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = getProductById(id);
         productRepository.delete(product);
     }
-
-    // ================== FILTER ==================
-
     @Override
     public List<Product> filterProducts(String keyword, Long categoryId) {
 

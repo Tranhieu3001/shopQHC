@@ -21,10 +21,7 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
             LocalDateTime startDate,
             LocalDateTime endDate
     );
-
-    
     boolean existsByCodeIgnoreCase(String code);
-
     @Query("""
             select c
             from Coupon c
