@@ -39,7 +39,7 @@ public class CouponServiceImpl implements CouponService {
     public Coupon saveCoupon(Coupon coupon) {
         normalizeCoupon(coupon);
 
-        if (couponRepository.existsByCode(coupon.getCode())) {
+        if (couponRepository.existsByCodeIgnoreCase(coupon.getCode())) {
             throw new IllegalArgumentException("Mã giảm giá đã tồn tại");
         }
 
@@ -56,7 +56,7 @@ public class CouponServiceImpl implements CouponService {
         normalizeCoupon(coupon);
 
         if (!existing.getCode().equalsIgnoreCase(coupon.getCode())
-                && couponRepository.existsByCode(coupon.getCode())) {
+                && couponRepository.existsByCodeIgnoreCase(coupon.getCode())) {
             throw new IllegalArgumentException("Mã giảm giá đã tồn tại");
         }
 
@@ -100,10 +100,10 @@ public class CouponServiceImpl implements CouponService {
             );
         }
 
-        String normalizedCode = code.trim();
+        String normalizedCode = code.trim().toUpperCase();
 
         Coupon coupon = couponRepository
-                .findByCodeAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                .findByCodeIgnoreCaseAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
                         normalizedCode,
                         Coupon.Status.ACTIVE,
                         LocalDateTime.now(),
