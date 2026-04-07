@@ -11,14 +11,19 @@ import java.util.Optional;
 
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
 
-    Optional<Coupon> findByCode(String code);
-    Optional<Coupon> findByCodeAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+    
+    Optional<Coupon> findByCodeIgnoreCase(String code);
+
+    
+    Optional<Coupon> findByCodeIgnoreCaseAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
             String code,
             Coupon.Status status,
             LocalDateTime startDate,
             LocalDateTime endDate
     );
-    boolean existsByCode(String code);
+
+    
+    boolean existsByCodeIgnoreCase(String code);
 
     @Query("""
             select c

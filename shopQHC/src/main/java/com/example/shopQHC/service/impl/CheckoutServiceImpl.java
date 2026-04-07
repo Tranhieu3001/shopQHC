@@ -91,19 +91,22 @@ public class CheckoutServiceImpl implements CheckoutService {
 
             orderItems.add(orderItem);
         }
-
+        //giam gia
         Coupon appliedCoupon = null;
         BigDecimal discountAmount = BigDecimal.ZERO;
 
         if (StringUtils.hasText(request.getCouponCode())) {
-            appliedCoupon = couponRepository
-                    .findByCodeAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                            request.getCouponCode().trim(),
-                            Coupon.Status.ACTIVE,
-                            LocalDateTime.now(),
-                            LocalDateTime.now()
-                    )
-                    .orElseThrow(() -> new IllegalArgumentException("Mã giảm giá không hợp lệ hoặc đã hết hạn"));
+
+    String code = request.getCouponCode().trim().toUpperCase();
+
+    appliedCoupon = couponRepository
+            .findByCodeIgnoreCaseAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                    code,
+                    Coupon.Status.ACTIVE,
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            )
+            .orElseThrow(() -> new IllegalArgumentException("Mã giảm giá không hợp lệ hoặc đã hết hạn"));
 
             if (appliedCoupon.getQuantity() <= 0) {
                 throw new IllegalArgumentException("Mã giảm giá đã hết lượt sử dụng");
